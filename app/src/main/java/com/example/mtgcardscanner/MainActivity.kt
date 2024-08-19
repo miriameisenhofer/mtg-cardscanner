@@ -1,5 +1,6 @@
 package com.example.mtgcardscanner
 
+import android.net.Uri
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -9,12 +10,19 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.mtgcardscanner.databinding.ActivityMainBinding
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private val pic_id = 123
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,5 +62,37 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+    private fun initializeCameraCaptureLauncher() {
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                Toast.makeText(this,"TODO", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this,"Image capture failed.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    private fun recognizeTextFromImage(uri: Uri) {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        val image = InputImage.fromFilePath(this, uri)
+
+        recognizer.process(image)
+            .addOnSuccessListener { visionText ->
+                displayRecognizedText(visionText.text)
+            }
+            .addOnFailureListener { e ->
+                //handleTextRecognitionError(e)
+                Toast.makeText(this,"TODO", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun displayRecognizedText(text: String) {
+        if (text.isBlank()) {
+            Toast.makeText(this, "Please repeat image capture, make sure text is visible on card!", Toast.LENGTH_LONG).show()
+        } else {
+            //binding.resultText.text = text
+            // do something with text
+        }
     }
 }
