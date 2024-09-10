@@ -26,7 +26,10 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import com.example.mtgcardscanner.databinding.ActivityMainBinding
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -42,7 +45,7 @@ import java.util.concurrent.Executors
 typealias LumaListener = (luma: Double) -> Unit
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    //private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     private var imageCapture: ImageCapture? = null
@@ -56,13 +59,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Request camera permissions
-        Toast.makeText(baseContext,
-            "Requesting permissions...",
-            Toast.LENGTH_SHORT).show()
         if (allPermissionsGranted()) {
-            Toast.makeText(baseContext,
-                "Permissions granted. Starting Camera.",
-                Toast.LENGTH_SHORT).show()
             startCamera()
         } else {
             requestPermissions()
@@ -132,17 +129,22 @@ class MainActivity : AppCompatActivity() {
             // Image Capture
             imageCapture = ImageCapture.Builder().build()
             //Image Analyzer
-            val imageAnalyzer = ImageAnalysis.Builder().build().also {
+            /*val imageAnalyzer = ImageAnalysis.Builder().build().also {
                 it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
                     Log.d(TAG, "Average luminosity: $luma")
                 })
+            }*/
+            val imageAnalyzerExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
+            val imageAnalyzer by lazy {
+               ImageAnalysis.Builder().build().also {
+                   it.setAnalyzer(
+                       imageAnalyzerExecutor,
+                       ImageAnalyzer({ Log.d(TAG, "Text Found: $it")})
+                   )
+               }
             }
             // Select back camera as default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            Toast.makeText(baseContext,
-                "Back camera selected.",
-                Toast.LENGTH_SHORT).show()
-
             try {
                 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
@@ -166,7 +168,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "MTCCardScannerApp"
+        private val TAG = MainActivity::class.java.name
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private val REQUIRED_PERMISSIONS =
             mutableListOf (

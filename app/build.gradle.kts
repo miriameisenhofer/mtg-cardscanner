@@ -1,4 +1,5 @@
 plugins {
+    //id("kotlin-android-extensions")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
@@ -67,9 +68,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.4")
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("androidx.camera:camera-extensions:${cameraxVersion}")
-    // To recognize Latin script
-    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Image capture
     implementation("com.google.android.gms:play-services-vision:20.1.3")
+
+    // Text Recognition
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 }
