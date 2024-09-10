@@ -1,9 +1,11 @@
 package com.example.mtgcardscanner
 
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -27,6 +30,8 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -67,7 +72,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
+        // Get a stable reference of the modifiable image capture use case (Exit function if use case is null, i.e. if photo button is tapped before image capture is set up)
+        val imageCapture = imageCapture ?: return
 
+        // Create time stamped name and MediaStore entry (to hold the image. timestamp to create unique display name)
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MTG-CardScanner")
+            }
+        }
+
+        // Create output options object which contains file + metadata (Here: Where to save -> MediaStore so other apps could display it)
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build()
+
+        // Set up image capture listener, which is triggered after photo has been taken (Call takePicture() on imageCapture object, pass in output options, executor and callback for when image is saved)
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object  : ImageCapture.OnImageSavedCallback {
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
+                }
+
+                override fun
+                        onImageSaved(output: ImageCapture.OutputFileResults) {
+                            //val savedUri = Uri.fromFile(photoFile)
+                            val msg= "Photo capture succeeded: ${output.savedUri}"
+                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, msg)
+                        }
+            }
+        )
     }
 
     private fun viewCardCollection() {
@@ -82,14 +120,12 @@ class MainActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             //Preview
-            Toast.makeText(baseContext,
-                "Preview...",
-                Toast.LENGTH_SHORT).show()
             val preview = Preview.Builder()
                 .build()
                 .also {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
+            imageCapture = ImageCapture.Builder().build()
             // Select back camera as default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             Toast.makeText(baseContext,
@@ -99,13 +135,10 @@ class MainActivity : AppCompatActivity() {
             try {
                 // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
-                Toast.makeText(baseContext,
-                    "Unbound: cameraProvider",
-                    Toast.LENGTH_SHORT).show()
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview)
+                    this, cameraSelector, preview, imageCapture)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
