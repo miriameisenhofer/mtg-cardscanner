@@ -20,8 +20,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -30,12 +32,14 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+typealias LumaListener = (luma: Double) -> Unit
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -125,7 +129,14 @@ class MainActivity : AppCompatActivity() {
                 .also {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
+            // Image Capture
             imageCapture = ImageCapture.Builder().build()
+            //Image Analyzer
+            val imageAnalyzer = ImageAnalysis.Builder().build().also {
+                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                    Log.d(TAG, "Average luminosity: $luma")
+                })
+            }
             // Select back camera as default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             Toast.makeText(baseContext,
@@ -138,7 +149,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture)
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
@@ -190,6 +201,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+    }
+
+    private class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
+        private fun ByteBuffer.toByteArray() : ByteArray {
+            rewind() // Rewind the buffer to zero
+            val data = ByteArray(remaining())
+            get(data) // Copy the buffer into a byte array
+            return data // Return the byte array
+        }
+
+        override fun analyze(image: ImageProxy) {
+            val buffer = image.planes[0].buffer
+            val data = buffer.toByteArray()
+            val pixels = data.map { it.toInt() and 0xFF }
+            val luma = pixels.average()
+
+            listener(luma)
+
+            image.close()
+        }
     }
 
 }
