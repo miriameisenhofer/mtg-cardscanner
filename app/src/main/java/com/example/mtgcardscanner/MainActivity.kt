@@ -41,6 +41,9 @@ import java.util.Locale
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import retrofit2.Callback
+import retrofit2.Call
+import retrofit2.Response
 
 typealias LumaListener = (luma: Double) -> Unit
 class MainActivity : AppCompatActivity() {
@@ -52,11 +55,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraExecutor: ExecutorService
 
+    // Scryfall
+    private lateinit var scryfallApiInterface: ScryfallApiInterface
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Get card by name
+        getScryfallApiInterface()
+        getCardByName("Hullbreaker Horror")
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -223,6 +233,30 @@ class MainActivity : AppCompatActivity() {
 
             image.close()
         }
+    }
+
+    // Scryfall
+    private fun getScryfallApiInterface() {
+        scryfallApiInterface = RetrofitInstance.getInstance().create(ScryfallApiInterface::class.java)
+    }
+    private fun getCardByName(name : String) {
+        val call = scryfallApiInterface.getCardByExactName(name)
+        call.enqueue(object : Callback<ScryfallCard> {
+            override fun onResponse(call: Call<ScryfallCard>, response: Response<ScryfallCard>) {
+                if (response.isSuccessful && response.body() != null) {
+                    // TODO: process data
+                    val card = response.body()
+                    var msg= "fetched card: "
+                    msg += card?.imageUris
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
+                    Log.d(TAG, msg)
+                }
+            }
+
+            override fun onFailure(call: Call<ScryfallCard>, t: Throwable) {
+                t.printStackTrace()
+            }
+        })
     }
 
 }

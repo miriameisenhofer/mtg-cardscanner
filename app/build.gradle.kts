@@ -74,4 +74,14 @@ dependencies {
 
     // Text Recognition
     implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    // API Dependencies
+    // GSON
+    implementation("com.google.code.gson:gson:2.10")
+    // API Requests
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    // Gson converter
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp for logging HTTP requests
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
