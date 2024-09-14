@@ -4,10 +4,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-feature android:name="android.hardware.camera.any"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-feature android:name="android.hardware.camera.any" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+
     <uses-feature android:name="android.hardware.camera.any" />
 
     <application
@@ -21,6 +24,11 @@
         android:theme="@style/Theme.MTGCardScanner"
         tools:targetApi="31">
         <activity
+            android:name=".FoundCardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_found_card"
+            android:theme="@style/Theme.MTGCardScanner" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -31,9 +39,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="orc"/>
+            android:value="orc" />
     </application>
 
 </manifest>

@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
         // Get card by name
         getScryfallApiInterface()
-        getCardByName("Hullbreaker Horror")
+        getCardByName("Exile")
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -149,7 +149,8 @@ class MainActivity : AppCompatActivity() {
                ImageAnalysis.Builder().build().also {
                    it.setAnalyzer(
                        imageAnalyzerExecutor,
-                       ImageAnalyzer({ Log.d(TAG, "Text Found: $it")})
+                       //ImageAnalyzer({ Log.d(TAG, "Text Found: $it")})
+                       ImageAnalyzer({ cleanUpCardString(it)})
                    )
                }
             }
@@ -247,7 +248,7 @@ class MainActivity : AppCompatActivity() {
                     // TODO: process data
                     val card = response.body()
                     var msg= "fetched card: "
-                    msg += card?.imageUris
+                    msg += card?.oracleText
                     Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
                     Log.d(TAG, msg)
                 }
@@ -257,6 +258,13 @@ class MainActivity : AppCompatActivity() {
                 t.printStackTrace()
             }
         })
+    }
+
+    private fun cleanUpCardString(foundText: String) {
+        // Get card by name
+        getScryfallApiInterface()
+        getCardByName(foundText)
+
     }
 
 }
