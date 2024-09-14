@@ -1,6 +1,9 @@
 package com.example.mtgcardscanner
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,15 +29,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import coil.compose.rememberImagePainter
 
 
 
 class FoundCardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Toast.makeText(baseContext, "FCA", Toast.LENGTH_SHORT).show()
+        val uriStringList = intent.getStringArrayListExtra("uriList")
+        val uriList = uriStringList!!.map { Uri.parse(it)}
+        uriList.forEach { uri ->
+            Toast.makeText(baseContext, "FCA, uri: $uri", Toast.LENGTH_SHORT).show()
+        }
+        Toast.makeText(baseContext, "Done uris", Toast.LENGTH_SHORT).show()
         setContent {
             MTGCardScannerTheme {
-                PagerView()
+                PagerView(uriList)
             }
         }
     }
@@ -42,12 +54,12 @@ class FoundCardActivity : ComponentActivity() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PagerView() {
-    val list = listOf(
+fun PagerView(uriList: List<Uri>) {
+    /*val list = listOf(
         R.drawable.c16_143_burgeoning,
         R.drawable.c16_143_burgeoning
-    )
-    val pageCount = list.size
+    )*/
+    val pageCount = uriList.size
 
     val pagerState = rememberPagerState {
         pageCount
@@ -62,11 +74,27 @@ fun PagerView() {
             pageSpacing = 10.dp,
             contentPadding = PaddingValues(horizontal = 50.dp)
         ) { page ->
-            BannerItem(image = list[page])
+            //BannerItem(image = list[page])
+            UriItem(image = uriList[page])
         }
     }
 }
 
+@OptIn(coil.annotation.ExperimentalCoilApi::class)
+@Composable
+fun UriItem(image: Uri) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.Blue)
+    ) {
+        Image(
+            painter = rememberImagePainter(image),
+            contentDescription = "Card Image",
+        )
+    }
+}
 @Composable
 fun BannerItem(image: Int) {
     Box(

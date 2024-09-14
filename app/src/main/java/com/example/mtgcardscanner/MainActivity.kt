@@ -39,6 +39,10 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -47,7 +51,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import retrofit2.Callback
 import retrofit2.Call
+import retrofit2.HttpException
 import retrofit2.Response
+import retrofit2.awaitResponse
 
 typealias LumaListener = (luma: Double) -> Unit
 class MainActivity : AppCompatActivity() {
@@ -70,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
         // Get card by name
         getScryfallApiInterface()
-        getCardByName("Exile")
+        //getCardByName("Exile")
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -244,6 +250,46 @@ class MainActivity : AppCompatActivity() {
     private fun getScryfallApiInterface() {
         scryfallApiInterface = RetrofitInstance.getInstance().create(ScryfallApiInterface::class.java)
     }
+
+    private fun getCardImageUris(name: String, callback:(List<Uri>?) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val call = scryfallApiInterface.getCardByExactName(name)
+                val response= call.awaitResponse()
+
+                if (response.isSuccessful) {
+                    val card = response.body()
+
+                    val uriList = mutableListOf<Uri>()
+                    card?.imageUris?.let { uris->
+                        uris.normal?.let { uriList.add(Uri.parse(it))}
+                        uris.large?.let {uriList.add(Uri.parse(it))}
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        callback(uriList)
+                    }
+                } else {
+                    Log.e(TAG, "else1")
+                    withContext(Dispatchers.Main) {
+                        callback(null)
+                    }
+                }
+            } catch (e: HttpException) {
+                Log.e(TAG, "http_e1")
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    callback(null)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "e_1")
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    callback(null)
+                }
+            }
+        }
+    }
     private fun getCardByName(name : String) {
         val call = scryfallApiInterface.getCardByExactName(name)
         call.enqueue(object : Callback<ScryfallCard> {
@@ -258,6 +304,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ScryfallCard>, t: Throwable) {
+                Toast.makeText(baseContext, "FAILED TO READ", Toast.LENGTH_LONG).show()
                 t.printStackTrace()
             }
         })
@@ -267,10 +314,27 @@ class MainActivity : AppCompatActivity() {
         // Get card by name
         getScryfallApiInterface()
         getCardByName(foundText)
-        val context = v.context
-        context.startActivity(
-            Intent(context, FoundCardActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
+        val uris = mutableListOf<Uri>()
+        getCardImageUris(foundText) {uriList ->
+            if (uriList != null) {
+                for (uri in uriList) {
+                    uris.add(uri)
+                    Toast.makeText(baseContext,"uris.size = ${uris.size} , uri: $uri", Toast.LENGTH_SHORT).show()
+                }
+                Toast.makeText(baseContext,"uris.size = ${uris.size}", Toast.LENGTH_SHORT).show()
+                if (uris.size == uriList.size) {
+                    val uriStringList = uris.map {it.toString() } as ArrayList<String>
+                    val context = v.context
+                    context.startActivity(
+                        Intent(context, FoundCardActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putStringArrayListExtra("uriList", uriStringList)
+                    )
+                }
+            } else {
+                Log.e(TAG, "Failed to fetch card image URIs")
+            }
+        }
     }
 
 }

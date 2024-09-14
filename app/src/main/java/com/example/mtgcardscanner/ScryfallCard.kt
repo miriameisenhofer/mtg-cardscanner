@@ -11,5 +11,6 @@ data class ScryfallCard (
 )
 
 data class ImageUris(
-    @SerializedName("normal") val normal: String
+    @SerializedName("normal") val normal: String?,
+    @SerializedName("large") val large: String?
 )

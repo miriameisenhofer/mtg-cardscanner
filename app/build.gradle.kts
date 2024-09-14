@@ -107,4 +107,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Image URIs in Compose
+    implementation("com.google.accompanist:accompanist-coil:0.15.0")
 }
