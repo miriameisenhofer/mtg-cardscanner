@@ -1,6 +1,7 @@
 package com.example.mtgcardscanner
 
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -15,6 +16,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -30,6 +32,8 @@ import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.example.mtgcardscanner.databinding.ActivityMainBinding
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -150,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                    it.setAnalyzer(
                        imageAnalyzerExecutor,
                        //ImageAnalyzer({ Log.d(TAG, "Text Found: $it")})
-                       ImageAnalyzer({ cleanUpCardString(it)})
+                       ImageAnalyzer({ cleanUpCardString(it, findViewById<View?>(android.R.id.content).rootView)})
                    )
                }
             }
@@ -245,7 +249,6 @@ class MainActivity : AppCompatActivity() {
         call.enqueue(object : Callback<ScryfallCard> {
             override fun onResponse(call: Call<ScryfallCard>, response: Response<ScryfallCard>) {
                 if (response.isSuccessful && response.body() != null) {
-                    // TODO: process data
                     val card = response.body()
                     var msg= "fetched card: "
                     msg += card?.oracleText
@@ -260,11 +263,14 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun cleanUpCardString(foundText: String) {
+    private fun cleanUpCardString(foundText: String, v: View) {
         // Get card by name
         getScryfallApiInterface()
         getCardByName(foundText)
-
+        val context = v.context
+        context.startActivity(
+            Intent(context, FoundCardActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
 }
