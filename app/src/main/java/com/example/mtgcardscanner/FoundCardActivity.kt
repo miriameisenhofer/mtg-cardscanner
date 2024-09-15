@@ -52,13 +52,8 @@ class FoundCardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Toast.makeText(baseContext, "FCA", Toast.LENGTH_SHORT).show()
         val uriStringList = intent.getStringArrayListExtra("uriList")
         val uriList = uriStringList!!.map { Uri.parse(it)}
-        uriList.forEach { uri ->
-            Toast.makeText(baseContext, "FCA, uri: $uri", Toast.LENGTH_SHORT).show()
-        }
-        Toast.makeText(baseContext, "Done uris", Toast.LENGTH_SHORT).show()
         setContent {
             MTGCardScannerTheme {
                 PagerView(uriList)

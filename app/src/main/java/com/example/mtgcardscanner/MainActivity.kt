@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Set up listeners for take photo and card collection buttons
-        binding.btnTakePhoto.setOnClickListener { takePhoto() }
+        //binding.btnTakePhoto.setOnClickListener { takePhoto() }
         binding.cardCollectionButton.setOnClickListener { viewCardCollection() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun viewCardCollection() {
-
+        Toast.makeText(baseContext, "TODO", Toast.LENGTH_SHORT).show()
     }
 
     private fun startCamera() {
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCardImageUris(name: String, callback:(List<Uri>?) -> Unit) {
         if (!IMAGE_ANALYSIS_ENABLED || System.currentTimeMillis() - LAST_TIMESTAMP < 500) {
-            Toast.makeText(baseContext,"I_A_E = $IMAGE_ANALYSIS_ENABLED , LT = $LAST_TIMESTAMP",Toast.LENGTH_SHORT).show()
+            //Toast.makeText(baseContext,"I_A_E = $IMAGE_ANALYSIS_ENABLED , LT = $LAST_TIMESTAMP",Toast.LENGTH_SHORT).show()
             return
         }
         LAST_TIMESTAMP = System.currentTimeMillis()
@@ -331,7 +331,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val foundTextCleaned = foundText.split(", ")[0]
-        Toast.makeText(baseContext, "foundText = $foundText, cleaned = $foundTextCleaned", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(baseContext, "foundText = $foundText, cleaned = $foundTextCleaned", Toast.LENGTH_SHORT).show()
         // Get card by name
         getScryfallApiInterface()
         //getCardByName(foundTextCleaned)
@@ -340,9 +340,9 @@ class MainActivity : AppCompatActivity() {
             if (uriList != null) {
                 for (uri in uriList) {
                     uris.add(uri)
-                    Toast.makeText(baseContext,"uris.size = ${uris.size} , uri: $uri", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(baseContext,"uris.size = ${uris.size} , uri: $uri", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(baseContext,"uris.size = ${uris.size}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(baseContext,"uris.size = ${uris.size}", Toast.LENGTH_SHORT).show()
                 if (uris.size == uriList.size) {
                     val uriStringList = uris.map {it.toString() } as ArrayList<String>
                     val context = v.context
