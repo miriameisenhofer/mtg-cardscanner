@@ -25,12 +25,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mtgcardscanner.ui.theme.MTGCardScannerTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import coil.compose.rememberImagePainter
-
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 
 
 class FoundCardActivity : ComponentActivity() {
@@ -75,25 +83,56 @@ fun PagerView(uriList: List<Uri>) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .height(400.dp)
-                .background(color = Color.White),
-            pageSpacing = 10.dp,
+                .height(400.dp),
+                //.background(color = Color.White),
+            pageSpacing = 20.dp,
             contentPadding = PaddingValues(horizontal = 50.dp)
         ) { page ->
             //BannerItem(image = list[page])
             UriItem(image = uriList[page])
         }
+        Column {
+            Row {
+                Text(text = "${pagerState.currentPage}", color = Color.Blue)
+                NumberField()
+            }
+            val context = LocalContext.current
+            AddToCollectionButton(pagerState.currentPage) {
+                Toast.makeText(
+                    context,
+                    "TODO",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
+}
+
+@Composable
+fun AddToCollectionButton(index: Int, onClick: () -> Unit) {
+    Button(onClick = { onClick() }) {
+        Text("Add to Collection")
+    }
+}
+
+@Composable
+fun NumberField() {
+    var number by remember { mutableStateOf("") }
+    TextField(
+        value = number,
+        onValueChange = { number = it},
+        label = { Text("Enter Amount")},
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
 }
 
 @OptIn(coil.annotation.ExperimentalCoilApi::class)
 @Composable
 fun UriItem(image: Uri) {
-    Box(
+    Box(contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.Blue)
     ) {
         Image(
             painter = rememberImagePainter(image),
@@ -107,7 +146,6 @@ fun BannerItem(image: Int) {
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
     ) {
         Image(
             painter = painterResource(id = image),
