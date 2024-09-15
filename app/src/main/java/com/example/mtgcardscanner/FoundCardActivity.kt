@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,7 +80,7 @@ fun PagerView(uriList: List<Uri>) {
         pageCount
     }
 
-    Column {
+    Column (verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -91,8 +92,8 @@ fun PagerView(uriList: List<Uri>) {
             //BannerItem(image = list[page])
             UriItem(image = uriList[page])
         }
-        Column {
-            Row {
+        Column (verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            Row (verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "${pagerState.currentPage}", color = Color.Blue)
                 NumberField()
             }
