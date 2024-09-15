@@ -34,6 +34,12 @@ import coil.compose.rememberImagePainter
 
 
 class FoundCardActivity : ComponentActivity() {
+
+    override fun onDestroy() {
+        IMAGE_ANALYSIS_ENABLED = true
+        FOUNDCARDACTIVITY_ENABLED = true
+        super.onDestroy()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

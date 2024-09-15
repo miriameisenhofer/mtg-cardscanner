@@ -56,6 +56,10 @@ import retrofit2.Response
 import retrofit2.awaitResponse
 
 typealias LumaListener = (luma: Double) -> Unit
+
+var IMAGE_ANALYSIS_ENABLED = true
+var LAST_TIMESTAMP = 0L
+var FOUNDCARDACTIVITY_ENABLED = true
 class MainActivity : AppCompatActivity() {
 
     //private lateinit var appBarConfiguration: AppBarConfiguration
@@ -156,11 +160,17 @@ class MainActivity : AppCompatActivity() {
             }*/
             val imageAnalyzerExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
             val imageAnalyzer by lazy {
-               ImageAnalysis.Builder().build().also {
+               ImageAnalysis.Builder().build().also { it ->
                    it.setAnalyzer(
                        imageAnalyzerExecutor,
                        //ImageAnalyzer({ Log.d(TAG, "Text Found: $it")})
-                       ImageAnalyzer({ cleanUpCardString(it, findViewById<View?>(android.R.id.content).rootView)})
+                       ImageAnalyzer {
+                           Log.d(TAG, "foundText: $it")
+                           cleanUpCardString(
+                               it,
+                               findViewById<View?>(android.R.id.content).rootView
+                           )
+                       }
                    )
                }
             }
@@ -252,12 +262,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCardImageUris(name: String, callback:(List<Uri>?) -> Unit) {
+        if (!IMAGE_ANALYSIS_ENABLED || System.currentTimeMillis() - LAST_TIMESTAMP < 500) {
+            Toast.makeText(baseContext,"I_A_E = $IMAGE_ANALYSIS_ENABLED , LT = $LAST_TIMESTAMP",Toast.LENGTH_SHORT).show()
+            return
+        }
+        LAST_TIMESTAMP = System.currentTimeMillis()
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val call = scryfallApiInterface.getCardByExactName(name)
                 val response= call.awaitResponse()
 
                 if (response.isSuccessful) {
+                    IMAGE_ANALYSIS_ENABLED = false
                     val card = response.body()
 
                     val uriList = mutableListOf<Uri>()
@@ -311,11 +327,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cleanUpCardString(foundText: String, v: View) {
+        if (!IMAGE_ANALYSIS_ENABLED) {
+            return
+        }
+        val foundTextCleaned = foundText.split(", ")[0]
+        Toast.makeText(baseContext, "foundText = $foundText, cleaned = $foundTextCleaned", Toast.LENGTH_SHORT).show()
         // Get card by name
         getScryfallApiInterface()
-        getCardByName(foundText)
+        //getCardByName(foundTextCleaned)
         val uris = mutableListOf<Uri>()
-        getCardImageUris(foundText) {uriList ->
+        getCardImageUris(foundTextCleaned) {uriList ->
             if (uriList != null) {
                 for (uri in uriList) {
                     uris.add(uri)
@@ -325,11 +346,14 @@ class MainActivity : AppCompatActivity() {
                 if (uris.size == uriList.size) {
                     val uriStringList = uris.map {it.toString() } as ArrayList<String>
                     val context = v.context
-                    context.startActivity(
-                        Intent(context, FoundCardActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putStringArrayListExtra("uriList", uriStringList)
-                    )
+                    if (FOUNDCARDACTIVITY_ENABLED) {
+                        FOUNDCARDACTIVITY_ENABLED = false
+                        context.startActivity(
+                            Intent(context, FoundCardActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .putStringArrayListExtra("uriList", uriStringList)
+                        )
+                    }
                 }
             } else {
                 Log.e(TAG, "Failed to fetch card image URIs")

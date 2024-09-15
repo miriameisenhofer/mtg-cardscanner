@@ -9,4 +9,5 @@ import com.example.mtgcardscanner.ScryfallCard
 interface ScryfallApiInterface {
     @GET("cards/named")
     fun getCardByExactName(@Query("exact") cardName: String): Call<ScryfallCard>
+    fun getCardByFuzzyName(@Query("fuzzy") cardName: String): Call<ScryfallCard>
 }
