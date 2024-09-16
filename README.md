@@ -2,6 +2,7 @@
 A personal scanner for organizing one's MTG collection.
 ## Demo
 ![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/Screen_recording_20240916_171520.gif)
+
 TODO:
 - Fetch all variants of a card and display in horizontal pager
 - Create new & load existing .csv files
