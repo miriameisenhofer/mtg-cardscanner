@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity() {
 
         // Get card by name
         getScryfallApiInterface()
-        //getCardByName("Exile")
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -153,11 +152,6 @@ class MainActivity : AppCompatActivity() {
             // Image Capture
             imageCapture = ImageCapture.Builder().build()
             //Image Analyzer
-            /*val imageAnalyzer = ImageAnalysis.Builder().build().also {
-                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                    Log.d(TAG, "Average luminosity: $luma")
-                })
-            }*/
             val imageAnalyzerExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
             val imageAnalyzer by lazy {
                ImageAnalysis.Builder().build().also { it ->
@@ -286,19 +280,16 @@ class MainActivity : AppCompatActivity() {
                         callback(uriList)
                     }
                 } else {
-                    Log.e(TAG, "else1")
                     withContext(Dispatchers.Main) {
                         callback(null)
                     }
                 }
             } catch (e: HttpException) {
-                Log.e(TAG, "http_e1")
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     callback(null)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "e_1")
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     callback(null)
@@ -340,9 +331,7 @@ class MainActivity : AppCompatActivity() {
             if (uriList != null) {
                 for (uri in uriList) {
                     uris.add(uri)
-                    //Toast.makeText(baseContext,"uris.size = ${uris.size} , uri: $uri", Toast.LENGTH_SHORT).show()
                 }
-                //Toast.makeText(baseContext,"uris.size = ${uris.size}", Toast.LENGTH_SHORT).show()
                 if (uris.size == uriList.size) {
                     val uriStringList = uris.map {it.toString() } as ArrayList<String>
                     val context = v.context
