@@ -36,7 +36,41 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/chooseNewCollectionFolderButton"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:contentDescription="@string/choose_folder_for_new_collection_string"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        app:icon="@drawable/baseline_folder_24"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="0dp"
+        app:layout_constraintBottom_toTopOf="@id/createNewCollectionButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.237"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enterCollectionName"
+        app:layout_constraintVertical_bias="0.593" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/selectedFolderText"
+        android:text="@string/current_folder_string"
+        app:layout_constraintStart_toEndOf="@id/chooseNewCollectionFolderButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/createNewCollectionButton"
+        app:layout_constraintTop_toBottomOf="@id/enterCollectionName"
+        app:layout_constraintHorizontal_bias="0.237"
+        app:layout_constraintVertical_bias="0.593"/>
+
     <Button
+        android:id="@+id/createNewCollectionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/create"

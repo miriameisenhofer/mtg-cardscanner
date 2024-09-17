@@ -25,4 +25,6 @@
     <string name="enter_collection_name_string">New Collection</string>
     <string name="defaultCollectionName">MyCollection</string>
     <string name="create">Create</string>
+    <string name="choose_folder_for_new_collection_string">Choose folder for new collection</string>
+    <string name="current_folder_string">Selected Folder: %s</string>
 </resources>

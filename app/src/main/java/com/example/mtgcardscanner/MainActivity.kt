@@ -1,5 +1,6 @@
 package com.example.mtgcardscanner
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +21,9 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -32,6 +36,7 @@ import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.mtgcardscanner.databinding.ActivityMainBinding
@@ -60,6 +65,11 @@ typealias LumaListener = (luma: Double) -> Unit
 var IMAGE_ANALYSIS_ENABLED = true
 var LAST_TIMESTAMP = 0L
 var FOUNDCARDACTIVITY_ENABLED = true
+
+// Selected collection folder
+var COLLECTION_FOLDER: Uri? = null
+// Selected collection file
+var COLLECTION_FILE = null
 class MainActivity : AppCompatActivity() {
 
     //private lateinit var appBarConfiguration: AppBarConfiguration
@@ -72,7 +82,8 @@ class MainActivity : AppCompatActivity() {
     // Scryfall
     private lateinit var scryfallApiInterface: ScryfallApiInterface
 
-
+    // for Document Folder Browsing
+    private lateinit var openDocumentTreeLauncher: ActivityResultLauncher<Intent>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -88,6 +99,23 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
 
+        Log.d("MyActivity", "Folder URI: $COLLECTION_FOLDER")
+        // Register document browser activity result handler
+        openDocumentTreeLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val uri = result.data?.data
+                if (uri != null) {
+                    // Persist the permission for future access
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                    Log.d("MyActivity", "Folder URI: $uri")
+                    COLLECTION_FOLDER = uri
+                }
+            }
+        }
+
         // Set up listeners for take photo and card collection buttons
         //binding.btnTakePhoto.setOnClickListener { takePhoto() }
         binding.btnNewCollection.setOnClickListener { addNewCollection() }
@@ -101,6 +129,21 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.preview_view, NewCollectionFragment()).commit()
     }
+
+    private fun openFolder() {
+        val folderIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        openDocumentTreeLauncher.launch(folderIntent)
+    }
+    public fun openFolderDialog(view: View) {
+        openFolder()
+        val textView: TextView = view.findViewById(R.id.selectedFolderText)
+        val folderName = COLLECTION_FOLDER?.path?.split("/")?.filter { it.isNotEmpty() }?.lastOrNull()?.removePrefix("primary:")
+        val fNnewline = "\n $folderName"
+        val updatedText = getString(R.string.current_folder_string, fNnewline)
+        Toast.makeText(baseContext, "uT = $updatedText",Toast.LENGTH_SHORT).show()
+        textView.text = updatedText
+    }
+
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case (Exit function if use case is null, i.e. if photo button is tapped before image capture is set up)
         val imageCapture = imageCapture ?: return
