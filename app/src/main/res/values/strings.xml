@@ -18,8 +18,11 @@
     <string name="picButton_string">Take Picture</string>
     <string name="cardCollectionButton_string">Card Collection</string>
     <string name="take_photo">Take Photo</string>
+    <string name="new_collection">New Collection</string>
     <string name="card_collection">Card Collection</string>
     <string name="title_activity_found_card">FoundCardActivity</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_collection_name_string">New Collection</string>
+    <string name="defaultCollectionName">MyCollection</string>
+    <string name="create">Create</string>
 </resources>

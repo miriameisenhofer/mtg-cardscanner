@@ -90,11 +90,17 @@ class MainActivity : AppCompatActivity() {
 
         // Set up listeners for take photo and card collection buttons
         //binding.btnTakePhoto.setOnClickListener { takePhoto() }
+        binding.btnNewCollection.setOnClickListener { addNewCollection() }
         binding.cardCollectionButton.setOnClickListener { viewCardCollection() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
+    private fun addNewCollection() {
+        // Open Fragment for user to type in collection name
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.preview_view, NewCollectionFragment()).commit()
+    }
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case (Exit function if use case is null, i.e. if photo button is tapped before image capture is set up)
         val imageCapture = imageCapture ?: return
