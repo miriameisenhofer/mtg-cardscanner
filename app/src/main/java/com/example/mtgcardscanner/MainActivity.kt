@@ -69,7 +69,7 @@ var FOUNDCARDACTIVITY_ENABLED = true
 // Selected collection folder
 var COLLECTION_FOLDER: Uri? = null
 // Selected collection file
-var COLLECTION_FILE = null
+var COLLECTION_FILE: Uri? = null
 class MainActivity : AppCompatActivity() {
 
     //private lateinit var appBarConfiguration: AppBarConfiguration
@@ -103,15 +103,16 @@ class MainActivity : AppCompatActivity() {
         // Register document browser activity result handler
         openDocumentTreeLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val uri = result.data?.data
-                if (uri != null) {
+                val folderUri = result.data?.data
+                folderUri?.let {
+                    val flags = result.data?.flags ?: 0
                     // Persist the permission for future access
                     contentResolver.takePersistableUriPermission(
-                        uri,
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        it,
+                        flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                     )
-                    Log.d("MyActivity", "Folder URI: $uri")
-                    COLLECTION_FOLDER = uri
+                    Log.d("MyActivity", "Folder URI: $folderUri")
+                    COLLECTION_FOLDER = folderUri
                 }
             }
         }

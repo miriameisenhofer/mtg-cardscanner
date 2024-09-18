@@ -25,13 +25,14 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enterCollectionName"
+        app:layout_constraintTop_toBottomOf="@id/enterCollectionName"
         app:endIconMode="clear_text"
         app:suffixText=".csv"
         style="@style/Theme.MTGCardScanner"
         android:hint="@string/defaultCollectionName">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/collectionNameTextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
