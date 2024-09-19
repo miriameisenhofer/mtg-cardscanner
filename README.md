@@ -1,11 +1,15 @@
 # MTG Card Scanner
 A personal scanner for organizing one's MTG collection.
 ## Demo
-![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/Screen_recording_20240916_171520.gif)
+Demo 1: Creating and loading .csv's
+
+Demo 2: Scanning cards
+
+![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/create_and_load_collection.gif)
+![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/scan_cards.gif)
 
 TODO:
 - Fetch all variants of a card and display in horizontal pager
-- Load existing .csv files
 - Add and sort cards into loaded .csv file
 ## About
 Uses the Scryfall API. (**Not** affiliated with Scryfall or MTG/WotC)
