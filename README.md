@@ -5,7 +5,7 @@ A personal scanner for organizing one's MTG collection.
 
 TODO:
 - Fetch all variants of a card and display in horizontal pager
-- Create new & load existing .csv files
+- Load existing .csv files
 - Add and sort cards into loaded .csv file
 ## About
 Uses the Scryfall API. (**Not** affiliated with Scryfall or MTG/WotC)
