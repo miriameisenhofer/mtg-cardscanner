@@ -29,7 +29,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [NewCollectionFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NewCollectionFragment : Fragment() {
+class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -55,6 +55,13 @@ class NewCollectionFragment : Fragment() {
         val folderName = COLLECTION_FOLDER
         val updatedText = getString(R.string.current_folder_string, folderName)
         textView.text = updatedText
+
+        binding.createNewCollectionButton.setOnClickListener {
+            val collectionUri = createNewCollection(view)
+            COLLECTION_FILE = collectionUri
+            // Remove UI of this fragment // Return to PreviewFragment
+            parentFragmentManager.popBackStack()
+        }
     }
 
     override fun onCreateView(
@@ -67,11 +74,12 @@ class NewCollectionFragment : Fragment() {
         binding.chooseNewCollectionFolderButton.setOnClickListener {
             a.openFolderDialog(view)
         }
-        binding.createNewCollectionButton.setOnClickListener {
+        /*binding.createNewCollectionButton.setOnClickListener {
             val collectionUri = createNewCollection(view)
             COLLECTION_FILE = collectionUri
-            // TODO Return to activity
-        }
+            // Remove UI of this fragment // Return to PreviewFragment
+
+        }*/
         return view
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_new_collection, container, false)
@@ -107,11 +115,8 @@ class NewCollectionFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
     override fun onDestroy() {
-        val intent = Intent(activity, Companion::class.java)
-        startActivity(intent)
         super.onDestroy()
     }
 

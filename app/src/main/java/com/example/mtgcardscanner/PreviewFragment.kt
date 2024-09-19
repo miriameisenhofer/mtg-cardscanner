@@ -119,7 +119,9 @@ class PreviewFragment : Fragment() {
         // Open Fragment for user to type in collection name
         val mainActivity = activity as MainActivity
         val fragmentTransaction = mainActivity.supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.preview_view, NewCollectionFragment()).commit()
+        fragmentTransaction.replace(R.id.preview_view, NewCollectionFragment())
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
     }
 
     private fun loadCardCollection() {
