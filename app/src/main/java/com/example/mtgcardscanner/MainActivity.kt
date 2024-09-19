@@ -63,6 +63,12 @@ class MainActivity : AppCompatActivity() {
                     )
                     Log.d("MyActivity", "Folder URI: $folderUri")
                     COLLECTION_FOLDER = folderUri
+                    val textView: TextView = findViewById(R.id.selectedFolderText)
+                    val folderName = COLLECTION_FOLDER?.path?.split("/")
+                        ?.lastOrNull { folderPath -> folderPath.isNotEmpty() }?.removePrefix("primary:")
+                    val fNewline = "\n $folderName"
+                    val updatedText = getString(R.string.current_folder_string, fNewline)
+                    textView.text = updatedText
                 }
             }
         }
@@ -85,12 +91,12 @@ class MainActivity : AppCompatActivity() {
     }
     public fun openFolderDialog(view: View) {
         openFolder()
-        val textView: TextView = view.findViewById(R.id.selectedFolderText)
+        /*val textView: TextView = view.findViewById(R.id.selectedFolderText)
         val folderName = COLLECTION_FOLDER?.path?.split("/")?.filter { it.isNotEmpty() }?.lastOrNull()?.removePrefix("primary:")
         val fNnewline = "\n $folderName"
         val updatedText = getString(R.string.current_folder_string, fNnewline)
         Toast.makeText(baseContext, "uT = $updatedText",Toast.LENGTH_SHORT).show()
-        textView.text = updatedText
+        textView.text = updatedText*/
     }
 
 

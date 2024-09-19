@@ -52,13 +52,25 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
 
         // Find the TextView by its ID
         val textView: TextView = view.findViewById(R.id.selectedFolderText)
-        val folderName = COLLECTION_FOLDER
-        val updatedText = getString(R.string.current_folder_string, folderName)
-        textView.text = updatedText
+        if (COLLECTION_FOLDER != null) {
+            val folderName = COLLECTION_FOLDER?.path?.split("/")
+                ?.lastOrNull { folderPath -> folderPath.isNotEmpty() }?.removePrefix("primary:")
+            val fNewline = "\n $folderName"
+            val updatedText = getString(R.string.current_folder_string, fNewline)
+            textView.text = updatedText
+        } else {
+            val updatedText = getString(R.string.current_folder_string, "NONE")
+            textView.text = updatedText
+        }
 
         binding.createNewCollectionButton.setOnClickListener {
             val collectionUri = createNewCollection(view)
             COLLECTION_FILE = collectionUri
+
+            val fm = parentFragmentManager
+            val prevFrag = (fm.findFragmentById(R.id.fragment_container)) as PreviewFragment
+            prevFrag.setSelectedCollectionText()
+
             // Remove UI of this fragment // Return to PreviewFragment
             parentFragmentManager.popBackStack()
         }
@@ -74,15 +86,7 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
         binding.chooseNewCollectionFolderButton.setOnClickListener {
             a.openFolderDialog(view)
         }
-        /*binding.createNewCollectionButton.setOnClickListener {
-            val collectionUri = createNewCollection(view)
-            COLLECTION_FILE = collectionUri
-            // Remove UI of this fragment // Return to PreviewFragment
-
-        }*/
         return view
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_new_collection, container, false)
     }
 
     private fun createNewCollection(view: View): Uri? {
@@ -110,6 +114,17 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
         } else {
             Log.d("File Creation", "File created successfully with URI: $fileUri")
         }
+        // Write headers in top most row
+        try {
+            contentResolver.openOutputStream(fileUri)?.use { outputStream ->
+                val writer = outputStream.bufferedWriter()
+                writer.write("Name;TOTAL;Mana;Sets and Set Totals")
+                writer.newLine()
+                writer.flush()
+            }
+        } catch (e: Exception) {
+            Log.e(NewCollectionFragment.TAG, "Failed to write to .csv file")
+        }
         return fileUri
     }
 
@@ -125,6 +140,7 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
     }*/
 
     companion object {
+        private val TAG = NewCollectionFragment::class.java.name
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

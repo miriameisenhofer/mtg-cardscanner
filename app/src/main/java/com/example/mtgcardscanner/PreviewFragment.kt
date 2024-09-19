@@ -2,6 +2,7 @@ package com.example.mtgcardscanner
 
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -55,6 +57,19 @@ class PreviewFragment : Fragment() {
         binding.cardCollectionButton.setOnClickListener { loadCardCollection() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        if (COLLECTION_FILE != null) {
+            Toast.makeText(requireContext(), "HELLO", Toast.LENGTH_SHORT).show()
+            val textView: TextView = requireView().findViewById(R.id.selectedCollectionText)
+            val fileName = COLLECTION_FILE?.path?.split("/")
+                ?.lastOrNull { filePath -> filePath.isNotEmpty() }
+        } else {
+            val textView: TextView = binding.root.findViewById(R.id.selectedCollectionText)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+            val fileName = "NONE"
+            val updatedText = getString(R.string.selected_collection_string, fileName)
+            textView.text = updatedText
+        }
 
         return binding.root
         // Set up listeners for take photo and card collection buttons
@@ -192,6 +207,19 @@ class PreviewFragment : Fragment() {
                 }
             }
         )
+    }
+
+    public fun setSelectedCollectionText(){
+        if (COLLECTION_FILE != null) {
+            val textView: TextView = requireView().findViewById(R.id.selectedCollectionText)
+            val fileName = COLLECTION_FILE?.path?.split("/")
+                ?.lastOrNull { filePath -> filePath.isNotEmpty() }
+            val updatedText = getString(R.string.selected_collection_string, fileName)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            textView.text = updatedText
+        } else {
+            Toast.makeText(requireContext(), "CF == null", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
