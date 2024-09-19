@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import com.example.mtgcardscanner.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,8 @@ class MainActivity : AppCompatActivity() {
 
     // for Document Folder Browsing
     private lateinit var openDocumentTreeLauncher: ActivityResultLauncher<Intent>
+    // for Document Browsing
+    private lateinit var openDocumentLauncher: ActivityResultLauncher<Intent>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -61,13 +64,35 @@ class MainActivity : AppCompatActivity() {
                         it,
                         flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                     )
-                    Log.d("MyActivity", "Folder URI: $folderUri")
+                    Log.d(TAG, "Folder URI: $folderUri")
                     COLLECTION_FOLDER = folderUri
                     val textView: TextView = findViewById(R.id.selectedFolderText)
                     val folderName = COLLECTION_FOLDER?.path?.split("/")
                         ?.lastOrNull { folderPath -> folderPath.isNotEmpty() }?.removePrefix("primary:")
                     val fNewline = "\n $folderName"
                     val updatedText = getString(R.string.current_folder_string, fNewline)
+                    textView.text = updatedText
+                }
+            }
+        }
+
+        openDocumentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val fileUri = result.data?.data
+                fileUri?.let {
+                    val flags = result.data?.flags ?: 0
+                    // Persist the permission for future access
+                    contentResolver.takePersistableUriPermission(
+                        it,
+                        flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    )
+                    Log.d(TAG, "Folder URI: $fileUri")
+                    COLLECTION_FILE = fileUri
+                    val textView: TextView = findViewById(R.id.selectedCollectionText)
+                    val fileName = COLLECTION_FILE?.path?.split("/")
+                        ?.lastOrNull { folderPath -> folderPath.isNotEmpty() }
+                    val updatedText = getString(R.string.selected_collection_string, fileName)
+                    textView.setTextColor(ContextCompat.getColor(baseContext, R.color.white))
                     textView.text = updatedText
                 }
             }
@@ -88,6 +113,12 @@ class MainActivity : AppCompatActivity() {
     private fun openFolder() {
         val folderIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         openDocumentTreeLauncher.launch(folderIntent)
+    }
+
+    public fun browseFile(){
+        val fileBrowseIntent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        fileBrowseIntent.setType("*/*")
+        openDocumentLauncher.launch(fileBrowseIntent)
     }
     public fun openFolderDialog(view: View) {
         openFolder()

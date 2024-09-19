@@ -53,16 +53,13 @@ class PreviewFragment : Fragment() {
             requestPermissions()
         }
 
-        binding.btnNewCollection.setOnClickListener { addNewCollection() }
-        binding.cardCollectionButton.setOnClickListener { loadCardCollection() }
+        binding.newCollectionButton.setOnClickListener { addNewCollection() }
+        binding.loadCardCollectionButton.setOnClickListener { loadCardCollection() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         if (COLLECTION_FILE != null) {
             Toast.makeText(requireContext(), "HELLO", Toast.LENGTH_SHORT).show()
-            val textView: TextView = requireView().findViewById(R.id.selectedCollectionText)
-            val fileName = COLLECTION_FILE?.path?.split("/")
-                ?.lastOrNull { filePath -> filePath.isNotEmpty() }
         } else {
             val textView: TextView = binding.root.findViewById(R.id.selectedCollectionText)
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
@@ -72,11 +69,6 @@ class PreviewFragment : Fragment() {
         }
 
         return binding.root
-        // Set up listeners for take photo and card collection buttons
-        //binding.btnTakePhoto.setOnClickListener { takePhoto() }
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_preview, container, false)
     }
 
     private fun startCamera() {
@@ -140,7 +132,9 @@ class PreviewFragment : Fragment() {
     }
 
     private fun loadCardCollection() {
-        Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+        // Open file browser for user to select collection
+        val mainActivity = activity as MainActivity
+        mainActivity.browseFile()
     }
 
     private fun allPermissionsGranted() = MainActivity.REQUIRED_PERMISSIONS.all {

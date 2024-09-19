@@ -16,7 +16,7 @@
     <string name="random_heading">Here is a random number between 0 and %d.</string>
     <string name="prompt_string">Take picture of MTG card to proceed</string>
     <string name="picButton_string">Take Picture</string>
-    <string name="cardCollectionButton_string">Card Collection</string>
+    <string name="loadCardCollectionButton_string">Load Collection</string>
     <string name="take_photo">Take Photo</string>
     <string name="new_collection">New Collection</string>
     <string name="card_collection">Card Collection</string>
