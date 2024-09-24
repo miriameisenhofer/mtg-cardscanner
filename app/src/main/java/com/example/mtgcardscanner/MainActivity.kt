@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val call = scryfallApiInterface.getCardByExactName(name)
-                val response= call.awaitResponse()
+                val response = call.awaitResponse()
 
                 if (response.isSuccessful) {
                     IMAGE_ANALYSIS_ENABLED = false
@@ -196,24 +196,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun getCardByName(name : String) {
-        val call = scryfallApiInterface.getCardByExactName(name)
-        call.enqueue(object : Callback<ScryfallCard> {
-            override fun onResponse(call: Call<ScryfallCard>, response: Response<ScryfallCard>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val card = response.body()
-                    var msg= "fetched card: "
-                    msg += card?.oracleText
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
-                    Log.d(TAG, msg)
+
+    public fun detectCard(foundText: String, view: View) {
+        if (!IMAGE_ANALYSIS_ENABLED) {
+            return
+        }
+        val foundTextCleaned = foundText.split(", ")[0]
+        getCardSets(foundTextCleaned) { sets ->
+            sets?.let { cards ->
+                val imageUris = extractImageUris(cards)
+
+                val uriStringList = imageUris.map {it.toString() } as ArrayList<String>
+                val context = view.context
+                if (FOUNDCARDACTIVITY_ENABLED) {
+                    FOUNDCARDACTIVITY_ENABLED = false
+                    context.startActivity(
+                        Intent(context, FoundCardActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putStringArrayListExtra("uriList", uriStringList)
+
+                    )
                 }
+
             }
 
-            override fun onFailure(call: Call<ScryfallCard>, t: Throwable) {
-                Toast.makeText(baseContext, "FAILED TO READ", Toast.LENGTH_LONG).show()
-                t.printStackTrace()
-            }
-        })
+        }
     }
 
     public fun cleanUpCardString(foundText: String, v: View) {
@@ -221,10 +228,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val foundTextCleaned = foundText.split(", ")[0]
-        //Toast.makeText(baseContext, "foundText = $foundText, cleaned = $foundTextCleaned", Toast.LENGTH_SHORT).show()
-        // Get card by name
         getScryfallApiInterface()
-        //getCardByName(foundTextCleaned)
         val uris = mutableListOf<Uri>()
         getCardImageUris(foundTextCleaned) {uriList ->
             if (uriList != null) {
@@ -240,12 +244,66 @@ class MainActivity : AppCompatActivity() {
                             Intent(context, FoundCardActivity::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 .putStringArrayListExtra("uriList", uriStringList)
+
                         )
                     }
                 }
             } else {
                 Log.e(TAG, "Failed to fetch card image URIs")
             }
+        }
+    }
+
+    private fun getCardSets(cardName: String, callback: (List<ScryfallCard>?) -> Unit) {
+        if (!IMAGE_ANALYSIS_ENABLED || System.currentTimeMillis() - LAST_TIMESTAMP < 500) {
+            return
+        }
+        LAST_TIMESTAMP = System.currentTimeMillis()
+        scryfallApiInterface.getCardByExactName(cardName).enqueue(object : Callback<ScryfallCard> {
+            override fun onResponse(call: Call<ScryfallCard>, response: Response<ScryfallCard>) {
+                if (response.isSuccessful) {
+                    val card = response.body()
+                    card?.let {
+                        it.printsSearchUri?.let { it1 -> getCardPrintings(it1, callback) }
+                    } ?: callback(null)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onFailure(call: Call<ScryfallCard>, t: Throwable) {
+                t.printStackTrace()
+                callback(null)
+            }
+        })
+    }
+
+
+    fun getCardPrintings(printsSearchUri: String, callback: (List<ScryfallCard>?) -> Unit) {
+        // Wait 50-100ms until next API call, as we just did the getCardByExactName GET
+        while (System.currentTimeMillis() - LAST_TIMESTAMP < 100) {
+            //noop
+        }
+        scryfallApiInterface.getCardPrintings(printsSearchUri).enqueue(object: Callback<ScryfallCardPrintingsResponse> {
+            override fun onResponse(call: Call<ScryfallCardPrintingsResponse>, response: Response<ScryfallCardPrintingsResponse>) {
+                if (response.isSuccessful) {
+                    val printings = response.body()?.printings
+                    callback(printings)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onFailure(call: Call<ScryfallCardPrintingsResponse>, t: Throwable){
+                t.printStackTrace()
+                callback(null)
+            }
+        })
+    }
+
+    private fun extractImageUris(printings: List<ScryfallCard>): List<String> {
+        return printings.mapNotNull { printing ->
+            printing.imageUris?.large
         }
     }
 

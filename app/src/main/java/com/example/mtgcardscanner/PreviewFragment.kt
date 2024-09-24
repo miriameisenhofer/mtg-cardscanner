@@ -96,7 +96,7 @@ class PreviewFragment : Fragment() {
                         ImageAnalyzer {
                             Log.d(PreviewFragment.TAG, "foundText: $it")
                             val mainActivity = activity as MainActivity
-                            mainActivity.cleanUpCardString(
+                            mainActivity.detectCard(
                                 it,
                                 //findViewById<View?>(android.R.id.content).rootView
                                 requireView()

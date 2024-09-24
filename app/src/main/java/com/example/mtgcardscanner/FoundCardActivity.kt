@@ -54,6 +54,8 @@ class FoundCardActivity : ComponentActivity() {
 
         val uriStringList = intent.getStringArrayListExtra("uriList")
         val uriList = uriStringList!!.map { Uri.parse(it)}
+
+        val scryfallCardList = intent.getParcelableArrayListExtra<ScryfallCard>("cardList")
         setContent {
             MTGCardScannerTheme {
                 PagerView(uriList)
@@ -136,24 +138,5 @@ fun UriItem(image: Uri) {
         )
     }
 }
-@Composable
-fun BannerItem(image: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(10.dp))
-    ) {
-        Image(
-            painter = painterResource(id = image),
-            contentDescription = "Card Image"
-        )
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MTGCardScannerTheme {
-        Text(text = "a")
-    }
-}
+
