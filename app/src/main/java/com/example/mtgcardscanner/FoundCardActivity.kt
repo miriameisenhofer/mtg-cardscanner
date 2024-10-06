@@ -2,6 +2,7 @@ package com.example.mtgcardscanner
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -41,9 +42,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import java.io.File
+import kotlin.math.log
 
 
 class FoundCardActivity : ComponentActivity() {
+
+    companion object {
+        private val TAG = FoundCardActivity::class.java.name
+    }
 
     override fun onDestroy() {
         IMAGE_ANALYSIS_ENABLED = true
@@ -74,7 +81,7 @@ class FoundCardActivity : ComponentActivity() {
 }
 
 fun addToCollection(card: ScryfallCard, context: Context, amount: Int) {
-    if (isInCSV(card)) {
+    if (isInCSV(card, context)) {
         Toast.makeText(context, "TODO 1\namount = $amount", Toast.LENGTH_SHORT).show()
         increaseCardInCSV(card)
     } else {
@@ -83,8 +90,18 @@ fun addToCollection(card: ScryfallCard, context: Context, amount: Int) {
     }
 }
 
-fun isInCSV(card: ScryfallCard) : Boolean {
-    // TODO
+fun isInCSV(card: ScryfallCard, context: Context) : Boolean {
+    val inputStream = context.contentResolver.openInputStream(COLLECTION_FILE!!)
+    val reader = inputStream?.bufferedReader()
+    val lines = reader?.lineSequence()
+    for (l in lines!!) {
+        val lList = l.split(";")
+        if (lList[0] == card.name) {
+            inputStream.close()
+            return true
+        }
+    }
+    inputStream.close()
     return false
 }
 
