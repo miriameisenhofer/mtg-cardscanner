@@ -63,23 +63,22 @@ class FoundCardActivity : ComponentActivity() {
         }
         Toast.makeText(baseContext, pr, Toast.LENGTH_SHORT).show()
 
-        //val card =
+        val card = intent.getParcelableExtra<ScryfallCard>("card")!!
 
-        val scryfallCardList = intent.getParcelableArrayListExtra<ScryfallCard>("cardList")
         setContent {
             MTGCardScannerTheme {
-                PagerView(uriList)
+                PagerView(uriList, setStringList, card)
             }
         }
     }
 }
 
-fun addToCollection(card: ScryfallCard, context: Context) {
+fun addToCollection(card: ScryfallCard, context: Context, amount: Int) {
     if (isInCSV(card)) {
-        Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "TODO 1\namount = $amount", Toast.LENGTH_SHORT).show()
         increaseCardInCSV(card)
     } else {
-        Toast.makeText(context, "TODO 2", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "TODO 2\namount = $amount", Toast.LENGTH_SHORT).show()
         addNewCardToCsv(card)
     }
 }
@@ -99,7 +98,7 @@ fun addNewCardToCsv(card: ScryfallCard) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PagerView(uriList: List<Uri>) {
+fun PagerView(uriList: List<Uri>, setList: List<String>, card: ScryfallCard) {
     val pageCount = uriList.size
 
     val pagerState = rememberPagerState {
@@ -119,13 +118,14 @@ fun PagerView(uriList: List<Uri>) {
             UriItem(image = uriList[page])
         }
         Column (verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            val amountState = remember { AmountState()}
             Row (verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "${pagerState.currentPage}", color = Color.Blue)
-                NumberField()
+                NumberField(amountState)
             }
             val context = LocalContext.current
             AddToCollectionButton(pagerState.currentPage) {
-                Toast.makeText(context, "TODO 1" , Toast.LENGTH_SHORT).show()
+                addToCollection(card, context, amountState.amount.toInt())
             }
         }
     }
@@ -138,12 +138,15 @@ fun AddToCollectionButton(index: Int, onClick: () -> Unit) {
     }
 }
 
+class AmountState() {
+    var amount: String by mutableStateOf("")
+}
 @Composable
-fun NumberField() {
-    var number by remember { mutableStateOf("") }
+fun NumberField(amountState: AmountState = remember { AmountState() }) {
+    //var number by remember { mutableStateOf("") }
     TextField(
-        value = number,
-        onValueChange = { number = it},
+        value = amountState.amount,
+        onValueChange = { amountState.amount = it},
         label = { Text("Enter Amount")},
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )

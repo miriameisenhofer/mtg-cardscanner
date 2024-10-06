@@ -208,6 +208,9 @@ class MainActivity : AppCompatActivity() {
                 val uriStringList = imageUris.map {it.toString() } as ArrayList<String>
 
                 val setStringList = cards.map { it.setName!! } as ArrayList<String>
+
+                val card = cards[0]
+
                 val context = view.context
                 if (FOUNDCARDACTIVITY_ENABLED) {
                     FOUNDCARDACTIVITY_ENABLED = false
@@ -216,6 +219,7 @@ class MainActivity : AppCompatActivity() {
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             .putStringArrayListExtra("uriList", uriStringList)
                             .putStringArrayListExtra("setList", setStringList)
+                            .putExtra("card", card)
                     )
                 }
 
