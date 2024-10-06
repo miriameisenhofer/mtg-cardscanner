@@ -5,11 +5,10 @@ Demo 1: Creating and loading .csv's
 
 Demo 2: Scanning cards
 
-![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/create_and_load_collection.gif)
-![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/scan_cards.gif)
+![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/select-collection.gif)
+![](https://github.com/miriameisenhofer/mtg-cardscanner/blob/main/card-scan.gif)
 
 TODO:
-- Fetch all variants of a card and display in horizontal pager ✔️ (Remaining: Demo gif)
 - Add and sort cards into loaded .csv file
 ## About
 Uses the Scryfall API. (**Not** affiliated with Scryfall or MTG/WotC)
