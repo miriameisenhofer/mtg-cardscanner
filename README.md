@@ -10,5 +10,7 @@ Demo 2: Scanning cards
 
 TODO:
 - Add and sort cards into loaded .csv file
+- Disable image scanning when creating/loading .csv files
+- Return to MainActivity/PreviewFragment upon adding card to collection
 ## About
 Uses the Scryfall API. (**Not** affiliated with Scryfall or MTG/WotC)
