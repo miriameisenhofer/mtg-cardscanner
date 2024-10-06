@@ -205,8 +205,9 @@ class MainActivity : AppCompatActivity() {
         getCardSets(foundTextCleaned) { sets ->
             sets?.let { cards ->
                 val imageUris = extractImageUris(cards)
-
                 val uriStringList = imageUris.map {it.toString() } as ArrayList<String>
+
+                val setStringList = cards.map { it.setName!! } as ArrayList<String>
                 val context = view.context
                 if (FOUNDCARDACTIVITY_ENABLED) {
                     FOUNDCARDACTIVITY_ENABLED = false
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                         Intent(context, FoundCardActivity::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             .putStringArrayListExtra("uriList", uriStringList)
-
+                            .putStringArrayListExtra("setList", setStringList)
                     )
                 }
 

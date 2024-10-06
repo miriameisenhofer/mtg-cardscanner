@@ -1,5 +1,6 @@
 package com.example.mtgcardscanner
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -55,6 +56,15 @@ class FoundCardActivity : ComponentActivity() {
         val uriStringList = intent.getStringArrayListExtra("uriList")
         val uriList = uriStringList!!.map { Uri.parse(it)}
 
+        val setStringList = intent.getStringArrayListExtra("setList")!!
+        var pr = ""
+        for (s in setStringList) {
+            pr += s
+        }
+        Toast.makeText(baseContext, pr, Toast.LENGTH_SHORT).show()
+
+        //val card =
+
         val scryfallCardList = intent.getParcelableArrayListExtra<ScryfallCard>("cardList")
         setContent {
             MTGCardScannerTheme {
@@ -64,13 +74,32 @@ class FoundCardActivity : ComponentActivity() {
     }
 }
 
+fun addToCollection(card: ScryfallCard, context: Context) {
+    if (isInCSV(card)) {
+        Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+        increaseCardInCSV(card)
+    } else {
+        Toast.makeText(context, "TODO 2", Toast.LENGTH_SHORT).show()
+        addNewCardToCsv(card)
+    }
+}
+
+fun isInCSV(card: ScryfallCard) : Boolean {
+    // TODO
+    return false
+}
+
+fun increaseCardInCSV(card: ScryfallCard) {
+    //TODO
+}
+
+fun addNewCardToCsv(card: ScryfallCard) {
+    //TODO
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PagerView(uriList: List<Uri>) {
-    /*val list = listOf(
-        R.drawable.c16_143_burgeoning,
-        R.drawable.c16_143_burgeoning
-    )*/
     val pageCount = uriList.size
 
     val pagerState = rememberPagerState {
@@ -96,11 +125,7 @@ fun PagerView(uriList: List<Uri>) {
             }
             val context = LocalContext.current
             AddToCollectionButton(pagerState.currentPage) {
-                Toast.makeText(
-                    context,
-                    "TODO",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "TODO 1" , Toast.LENGTH_SHORT).show()
             }
         }
     }
