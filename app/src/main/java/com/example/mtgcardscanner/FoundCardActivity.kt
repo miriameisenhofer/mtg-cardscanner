@@ -49,7 +49,7 @@ import kotlin.math.log
 class FoundCardActivity : ComponentActivity() {
 
     companion object {
-        private val TAG = FoundCardActivity::class.java.name
+        val TAG = FoundCardActivity::class.java.name
     }
 
     override fun onDestroy() {
@@ -64,11 +64,6 @@ class FoundCardActivity : ComponentActivity() {
         val uriList = uriStringList!!.map { Uri.parse(it)}
 
         val setStringList = intent.getStringArrayListExtra("setList")!!
-        var pr = ""
-        for (s in setStringList) {
-            pr += s
-        }
-        Toast.makeText(baseContext, pr, Toast.LENGTH_SHORT).show()
 
         val card = intent.getParcelableExtra<ScryfallCard>("card")!!
 
@@ -80,13 +75,12 @@ class FoundCardActivity : ComponentActivity() {
     }
 }
 
-fun addToCollection(card: ScryfallCard, context: Context, amount: Int) {
+fun addToCollection(card: ScryfallCard, setName: String, context: Context, amount: Int) {
     if (isInCSV(card, context)) {
         Toast.makeText(context, "TODO 1\namount = $amount", Toast.LENGTH_SHORT).show()
         increaseCardInCSV(card)
     } else {
-        Toast.makeText(context, "TODO 2\namount = $amount", Toast.LENGTH_SHORT).show()
-        addNewCardToCsv(card)
+        addNewCardToCsv(card, setName, amount, context)
     }
 }
 
@@ -109,8 +103,18 @@ fun increaseCardInCSV(card: ScryfallCard) {
     //TODO
 }
 
-fun addNewCardToCsv(card: ScryfallCard) {
-    //TODO
+fun addNewCardToCsv(card: ScryfallCard, setName: String, amount: Int, context: Context) {
+    val txt = card.name + ";" + amount + ";" + card.manaCost + ";" + setName + ";" + amount
+    try {
+        context.contentResolver.openOutputStream(COLLECTION_FILE!!, "wa")?.use { outputStream ->
+            val writer = outputStream.bufferedWriter()
+            writer.write(txt)
+            writer.newLine()
+            writer.flush()
+        }
+    } catch (e: Exception) {
+        Log.e(FoundCardActivity.TAG, "Failed to write to .csv file")
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -142,7 +146,7 @@ fun PagerView(uriList: List<Uri>, setList: List<String>, card: ScryfallCard) {
             }
             val context = LocalContext.current
             AddToCollectionButton(pagerState.currentPage) {
-                addToCollection(card, context, amountState.amount.toInt())
+                addToCollection(card, setList[pagerState.currentPage], context, amountState.amount.toInt())
             }
         }
     }
