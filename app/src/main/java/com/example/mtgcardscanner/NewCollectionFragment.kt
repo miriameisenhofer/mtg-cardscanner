@@ -50,6 +50,9 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Disable image analysis until new collection created
+        IMAGE_ANALYSIS_ENABLED = false
+
         // Find the TextView by its ID
         val textView: TextView = view.findViewById(R.id.selectedFolderText)
         if (COLLECTION_FOLDER != null) {
@@ -129,6 +132,8 @@ class NewCollectionFragment : Fragment(R.layout.fragment_new_collection) {
     }
 
     override fun onDestroyView() {
+        // Enable image analysis after finishing collection creation
+        IMAGE_ANALYSIS_ENABLED = true
         super.onDestroyView()
     }
     override fun onDestroy() {
