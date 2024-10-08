@@ -77,8 +77,7 @@ class FoundCardActivity : ComponentActivity() {
 
 fun addToCollection(card: ScryfallCard, setName: String, context: Context, amount: Int) {
     if (isInCSV(card, context)) {
-        Toast.makeText(context, "TODO 1\namount = $amount", Toast.LENGTH_SHORT).show()
-        increaseCardInCSV(card)
+        increaseCardInCSV(card, setName, amount, context)
     } else {
         addNewCardToCsv(card, setName, amount, context)
     }
@@ -99,8 +98,50 @@ fun isInCSV(card: ScryfallCard, context: Context) : Boolean {
     return false
 }
 
-fun increaseCardInCSV(card: ScryfallCard) {
-    //TODO
+fun increaseCardInCSV(card: ScryfallCard, setName: String, amount: Int, context: Context) {
+    var txt = ""
+    val inputStream = context.contentResolver.openInputStream(COLLECTION_FILE!!)
+    val reader = inputStream?.bufferedReader()
+    val lines = reader?.lineSequence()
+    for (l in lines!!) {
+        val lList = l.split(";")
+        if (lList[0] == card.name) {
+            // Adjust line in which card is found
+            txt += card.name + ";" + (lList[1].toInt() + amount) + ";" + card.manaCost
+            // Search for column which refers to set in question
+            var containedSet = false
+            for (i in 3..< lList.size) {
+                if (lList[i] == setName) {
+                    containedSet = true
+                    txt += ";" + setName + ";" + (lList[i + 1].toInt() + amount)
+                    for (remainingSetEntry in lList.slice(i+2..<lList.size)){
+                        txt += ";$remainingSetEntry"
+                    }
+                    break
+                } else {
+                    txt += ";" + lList[i]
+                }
+            }
+            if (!containedSet) {
+                txt += ";$setName;$amount"
+            }
+            txt += "\n"
+        } else {
+            // Keep line the same, as it is different card
+            txt += l + "\n"
+        }
+    }
+    inputStream.close()
+
+    try {
+        context.contentResolver.openOutputStream(COLLECTION_FILE!!,"w")?.use {outputStream ->
+            val writer = outputStream.bufferedWriter()
+            writer.write(txt)
+            writer.flush()
+        }
+    } catch (e: Exception) {
+        Log.e(FoundCardActivity.TAG,"Failed to write to .csv file")
+    }
 }
 
 fun addNewCardToCsv(card: ScryfallCard, setName: String, amount: Int, context: Context) {
@@ -111,6 +152,7 @@ fun addNewCardToCsv(card: ScryfallCard, setName: String, amount: Int, context: C
             writer.write(txt)
             writer.newLine()
             writer.flush()
+            outputStream.close()
         }
     } catch (e: Exception) {
         Log.e(FoundCardActivity.TAG, "Failed to write to .csv file")
