@@ -11,7 +11,6 @@ Demo 2: Scanning cards
 TODO:
 - New Demos/Screenshots (of created .csv's)
 - Reproduce and fix null-pointer bug on scanning card
-- Return to MainActivity/PreviewFragment upon adding card to collection
 - Refactoring: Develop internal data structure to represent collection (with contains and insertion functions), create .csv's based on this
 
 ## Installation & Usage
