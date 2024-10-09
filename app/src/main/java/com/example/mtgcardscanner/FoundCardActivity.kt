@@ -1,6 +1,8 @@
 package com.example.mtgcardscanner
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -81,6 +83,10 @@ fun addToCollection(card: ScryfallCard, setName: String, context: Context, amoun
     } else {
         addNewCardToCsv(card, setName, amount, context)
     }
+    // Return to Camera Preview
+    Toast.makeText(context, "Added ${card.name} (x$amount) to collection", Toast.LENGTH_SHORT).show()
+    val fcActivity = context as Activity
+    fcActivity.finish()
 }
 
 fun isInCSV(card: ScryfallCard, context: Context) : Boolean {
